@@ -36,6 +36,7 @@ io.on('connection', socket => {
         if (game.isStarted()) {
             game.addLine(line, socket);
             io.emit('storytime', game.getStory());
+            game.reset();
         } else {
             socket.emit('early-bird');
         }

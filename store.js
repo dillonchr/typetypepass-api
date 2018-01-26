@@ -42,7 +42,6 @@ module.exports = {
         started = true;
     },
     reset() {
-        players.length = 0;
         lines.length = 0;
         started = false;
         cycle = 1;
