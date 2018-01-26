@@ -5,6 +5,7 @@ let cycle = 1;
 
 module.exports = {
     addPlayer(name, socket) {
+        players = players.filter(p => p.socket !== socket).filter(p => p.name !== name);
         players = [...players, {name, socket}];
     },
     removePlayer(socket) {
@@ -25,6 +26,9 @@ module.exports = {
         }
         return players[nextIndex].socket;
     },
+    getStory() {
+        return lines.join(' ');
+    },
     getCycle() {
         return cycle;
     },
@@ -36,5 +40,11 @@ module.exports = {
     },
     begin() {
         started = true;
+    },
+    reset() {
+        players.length = 0;
+        lines.length = 0;
+        started = false;
+        cycle = 1;
     }
 };

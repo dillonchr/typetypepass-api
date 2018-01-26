@@ -32,6 +32,15 @@ io.on('connection', socket => {
         }
     });
 
+    socket.on('end-story', line => {
+        if (game.isStarted()) {
+            game.addLine(line, socket);
+            io.emit('storytime', game.getStory());
+        } else {
+            socket.emit('early-bird');
+        }
+    });
+
     socket.on('disconnect', () => {
         game.removePlayer(socket);
         io.emit('list-players', game.getPlayerList());
