@@ -8,40 +8,29 @@ const app = https.createServer({
     res.writeHead(200);
     res.end('oh hi there', 'utf-8');
 });
-
 const io = require('socket.io')(app);
-app.listen(process.env.PORT || 3000);
+const game = require('./store');
 
-let players = [];
-let lines = [];
-let started = false;
-let cycle = 1;
+app.listen(process.env.PORT || 3000);
 
 io.on('connection', socket => {
     socket.on('add-player', name => {
-        players = [...players, {name, socket}];
-        io.emit('list-players', players.map(({name}) => name));
-        if (players.length > 2 && !started) {
-            started = true;
-            players[0].socket.emit('your-turn');
+        game.addPlayer(name, socket);
+        const playerList = game.getPlayerList();
+        io.emit('list-players', playerList);
+        if (game.canStart()) {
+            game.begin();
+            game.getPlayerSocket(0).emit('your-turn');
         }
     });
 
     socket.on('add-line', line => {
-        lines = [...lines, line];
-        const submittorIndex = players.findIndex(p => p.socket === socket);
-        let nextIndex;
-        if (submittorIndex === players.length - 1) {
-            cycle += 1;
-            nextIndex = 0;
-        } else {
-            nextIndex = submittorIndex + 1;
-        }
-        players[nextIndex].socket.emit('your-turn', {prompt: line, cycle});
+        const nextSocket = game.addLine(line, socket);
+        nextSocket.emit('your-turn', {prompt: line, cycle: game.getCycle()});
     });
 
     socket.on('disconnect', () => {
-        players = players.filter(p => p.socket !== socket);
-        io.emit('list-players', players.map(({name}) => name));
+        game.removePlayer(socket);
+        io.emit('list-players', game.getPlayerList());
     });
 });
