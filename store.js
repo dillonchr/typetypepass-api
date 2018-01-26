@@ -28,6 +28,9 @@ module.exports = {
     getCycle() {
         return cycle;
     },
+    isStarted() {
+        return started;
+    },
     canStart() {
         return players.length > 2 && !started;
     },

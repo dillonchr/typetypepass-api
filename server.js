@@ -16,17 +16,20 @@ app.listen(process.env.PORT || 3000);
 io.on('connection', socket => {
     socket.on('add-player', name => {
         game.addPlayer(name, socket);
-        const playerList = game.getPlayerList();
-        io.emit('list-players', playerList);
+        io.emit('list-players', game.getPlayerList());
         if (game.canStart()) {
             game.begin();
-            game.getPlayerSocket(0).emit('your-turn');
+            game.getPlayerSocket(0).emit('your-turn', {first: true});
         }
     });
 
     socket.on('add-line', line => {
-        const nextSocket = game.addLine(line, socket);
-        nextSocket.emit('your-turn', {prompt: line, cycle: game.getCycle()});
+        if (game.isStarted()) {
+            const nextSocket = game.addLine(line, socket);
+            nextSocket.emit('your-turn', {prompt: line, cycle: game.getCycle()});
+        } else {
+            socket.emit('early-bird');
+        }
     });
 
     socket.on('disconnect', () => {

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "SET CERTS_PATH=D:\\certs\\&& nodemon server"
+    "start": "nodemon server"
   },
   "author": "",
   "license": "ISC",
