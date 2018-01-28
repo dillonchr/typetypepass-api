@@ -10,6 +10,7 @@ module.exports = {
             const upNext = !players.length;
             players = [...players, {uuid, socket, upNext}];
         } else {
+            players = players.map(p => p.uuid === uuid ? {...p, socket} : p);
             clearTimeout(removePlayerTimers[uuid]);
             delete removePlayerTimers[uuid];
         }
