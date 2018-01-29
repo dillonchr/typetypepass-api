@@ -9,13 +9,10 @@ module.exports = {
         console.log(preMessage, players.map(p => p.name).join(), `#oLINES: ${lines.length}; #cycle: ${cycle}; #started: ${started}`);
     },
     addPlayer(uuid, socket) {
-        this.logState(uuid, 'IS IT IN');
         if (!players.some(p => p.uuid === uuid)) {
-            this.logState('NOpe', uuid, 'is new');
             const upNext = !players.length;
             players = [...players, {uuid, socket, upNext, online: true}];
         } else {
-            this.logState('Yes, updating', uuid);
             players = players.map(p => p.uuid === uuid ? {...p, socket, online: true} : p);
             clearTimeout(removePlayerTimers[uuid]);
             delete removePlayerTimers[uuid];
@@ -25,8 +22,25 @@ module.exports = {
         return started && players.some(p => p.uuid === uuid && p.upNext);
     },
     removePlayer(uuid) {
-        players = players.filter(p => p.online || p.uuid !== uuid);
-        this.logState('TRIED TO REMOVING', uuid);
+        const i = players.findIndex(p => p.uuid === uuid);
+        const ousted = players[i];
+        if (ousted && !ousted.online) {
+            this.logState('the ousted', ousted.name);
+            let upNextUuid;
+            if (ousted.upNext) {
+                this.logState('HE WAS NEXT UP!!!');
+                const nextI = i > players.length - 2 ? 0 : i + 1;
+                this.logState('NEXT INDEX', nextI);
+                upNextUuid = players[nextI].uuid;
+                this.logState('NEW NEXT', players[nextI].name);
+            }
+            players = players.filter(p => p.online || p.uuid !== uuid);
+            if (upNextUuid) {
+                players = players.map(p => ({...p, upNext: p.uuid === upNextUuid}));
+            }
+            this.logState(players.map(p => ({next:p.upNext,name:p.name})));
+            this.logState('ACTUALLY REMOVED', uuid);
+        }
     },
     disconnectPlayer(uuid) {
         players = players.map(p => p.uuid === uuid ? {...p, online: false} : p);
