@@ -2,8 +2,8 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const app = https.createServer({
-    key: fs.readFileSync(path.join(process.env.CERTS_PATH, 'dillonchristensen.com.key')),
-    cert: fs.readFileSync(path.join(process.env.CERTS_PATH, 'dillonchristensen.com.cer'))
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH)
 }, (req, res) => {
     res.writeHead(200);
     res.end('oh hi there', 'utf-8');
