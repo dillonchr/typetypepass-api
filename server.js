@@ -1,4 +1,4 @@
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const mimeTypes = {
@@ -18,21 +18,14 @@ const mimeTypes = {
     '.otf': 'application/font-otf',
     '.svg': 'application/image/svg+xml'
 };
-const app = https.createServer({
-    key: fs.readFileSync(process.env.SSL_KEY_PATH),
-    cert: fs.readFileSync(process.env.SSL_CERT_PATH)
-}, (req, res) => {
+const app = http.createServer((req, res) => {
     const filePath = path.join(process.env.FRONT_END_DIR, req.url === '/' ? '/index.html' : req.url);
     const contentType = mimeTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
     fs.readFile(filePath, (error, content) => {
         if (error) {
-            if(error.code === 'ENOENT'){
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end('404', 'utf-8');
-            } else {
-                res.writeHead(500);
-                res.end('500');
-            }
+            const status = error.code === 'ENOENT' ? 404 : 500;
+            res.writeHead(status, {'Content-Type': 'text/plain'});
+            res.end(status.toString());
         } else {
             res.writeHead(200, {'Content-Type': contentType});
             res.end(content, 'utf-8');
