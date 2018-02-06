@@ -2,6 +2,8 @@ const app = require('./server');
 const io = require('socket.io')(app);
 const game = require('./store');
 
+app.listen(process.env.PORT || 3000);
+
 io.on('connection', socket => {
     const user = {id: null, removePlayerTimer: null};
 

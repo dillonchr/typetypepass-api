@@ -31,6 +31,6 @@ const app = http.createServer((req, res) => {
             res.end(content, 'utf-8');
         }
     });
-}).listen(process.env.PORT || 3000);
+});
 
 module.exports = app;
