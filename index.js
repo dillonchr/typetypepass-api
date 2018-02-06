@@ -1,4 +1,12 @@
-const app = require('./server');
+const https = require('https');
+const fs = require('fs');
+const app = https.createServer({
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH)
+}, (req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('shh.', 'utf-8');
+});
 const io = require('socket.io')(app);
 const game = require('./store');
 
