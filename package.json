@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "hat": "github:substack/node-hat",
+    "raven": "^2.4.1",
     "socket.io": "^2.0.4"
   }
 }

@@ -1,5 +1,6 @@
 const https = require('https');
 const fs = require('fs');
+const trackError = require('./errors');
 const app = https.createServer({
     key: fs.readFileSync(process.env.SSL_KEY_PATH),
     cert: fs.readFileSync(process.env.SSL_CERT_PATH)
@@ -56,8 +57,14 @@ io.on('connection', socket => {
     socket.on('end-story', line => {
         if (game.isStarted()) {
             game.addLine(line, user.id);
-            io.emit('storytime', game.getStory());
+            const story = game.getStory();
+            io.emit('storytime', story);
             game.reset();
+            fs.writeFile(`stories/${hat()}.txt`, story, err => {
+                if (err) {
+                    trackError(err);
+                }
+            });
         } else {
             socket.emit('early-bird');
         }
