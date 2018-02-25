@@ -10,13 +10,14 @@ const app = https.createServer({
 });
 const io = require('socket.io')(app);
 const game = require('./store');
+const hat = require('hat');
 
 app.listen(process.env.PORT || 3000);
 
 io.on('connection', socket => {
     const user = {id: null, removePlayerTimer: null};
 
-    const welcomeNewPlayer = uuid => {
+    const welcomeNewPlayer = () => {
         io.emit('list-players', game.getPlayerList());
         if (game.canStart()) {
             game.begin();
