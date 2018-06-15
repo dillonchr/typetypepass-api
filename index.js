@@ -1,10 +1,7 @@
-const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const trackError = require('./errors');
-const app = https.createServer({
-    key: fs.readFileSync(process.env.SSL_KEY_PATH),
-    cert: fs.readFileSync(process.env.SSL_CERT_PATH)
-}, (req, res) => {
+const app = http.createServer((req, res) => {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end('shh.', 'utf-8');
 });
@@ -12,7 +9,7 @@ const io = require('socket.io')(app);
 const game = require('./store');
 const hat = require('hat');
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 24896);
 
 io.on('connection', socket => {
     const user = {id: null, removePlayerTimer: null};
