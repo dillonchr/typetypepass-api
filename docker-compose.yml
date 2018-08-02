@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 7710:3000
