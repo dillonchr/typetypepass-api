@@ -1,3 +1,4 @@
+const config = require('./config');
 let players = [];
 let lines = [];
 let started = false;
@@ -6,7 +7,7 @@ let removePlayerTimers = {};
 
 module.exports = {
     logState(...preMessage) {
-        console.log(preMessage, players.map(p => p.name).join(), `#oLINES: ${lines.length}; #cycle: ${cycle}; #started: ${started}`);
+        return config.IS_PROD || console.log(preMessage, players.map(p => p.name).join(), `#oLINES: ${lines.length}; #cycle: ${cycle}; #started: ${started}`);
     },
     addPlayer(uuid, socket) {
         if (!players.some(p => p.uuid === uuid)) {
@@ -21,15 +22,18 @@ module.exports = {
     playerIsNext(uuid) {
         return started && players.some(p => p.uuid === uuid && p.upNext);
     },
+    getPlayerWhoIsNext() {
+        return players.find(p => p.upNext).socket;
+    },
     removePlayer(uuid) {
         const i = players.findIndex(p => p.uuid === uuid);
         const ousted = players[i];
         if (ousted && !ousted.online) {
-            this.logState('the ousted', ousted.name);
+            this.logState('the ousted', ousted);
             let upNextUuid;
             if (ousted.upNext) {
                 this.logState('HE WAS NEXT UP!!!');
-                const nextI = i > players.length - 2 ? 0 : i + 1;
+                const nextI = i >= players.length - 2 ? 0 : i + 1;
                 this.logState('NEXT INDEX', nextI);
                 upNextUuid = players[nextI].uuid;
                 this.logState('NEW NEXT', players[nextI].name);
@@ -44,7 +48,10 @@ module.exports = {
     },
     disconnectPlayer(uuid) {
         players = players.map(p => p.uuid === uuid ? {...p, online: false} : p);
-        removePlayerTimers[uuid] = setTimeout(() => this.removePlayer(uuid), 10000);
+        removePlayerTimers[uuid] = setTimeout(() => this.removePlayer(uuid), config.REMOVE_PLAYER_DISCONNECT_TIMEOUT);
+        if (!players.length) {
+           this.reset();
+        }
     },
     namePlayer(uuid, name) {
         players = players.map(p => p.uuid === uuid ? {...p, name} : p);

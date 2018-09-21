@@ -8,7 +8,7 @@ const app = http.createServer((req, res) => {
 const io = require('socket.io')(app);
 const game = require('./store');
 const hat = require('hat');
-
+const config = require('./config');
 app.listen(process.env.PORT || 24896);
 
 io.on('connection', socket => {
@@ -70,6 +70,9 @@ io.on('connection', socket => {
 
     socket.on('disconnect', () => {
         game.disconnectPlayer(user.id);
+        setTimeout(() => {
+            game.getPlayerWhoIsNext().emit('your-turn', game.getPromptForNextPlayer());
+        }, config.REMOVE_PLAYER_DISCONNECT_TIMEOUT + 1);
     });
 
     socket.on('exit-game', () => {

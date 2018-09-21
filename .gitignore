@@ -1,1 +1,3 @@
 dist/
+stories/ 
+node_modules/ 
